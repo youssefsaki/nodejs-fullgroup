@@ -28,7 +28,7 @@ const server = http.createServer((req, res) => {
         case '/' : 
             path += 'index.html';
             break;
-        case '/about' :
+        case '/form' :
             path += 'about.html';
             break;
         default : 
