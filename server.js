@@ -1,36 +1,44 @@
-// to install express use npm i express
 const express = require('express');
-const morgan = require('morgan');
-
-//* express is a function 
 const app = express();
 
-const PORT = 5500;
+//* first Install Mongodb => npm i mongodb 
+const { MongoClient } = require('mongodb');
 
-//* MIDDLEWARE : 
-app.use(morgan());
+app.use(express.json());
 
-app.get('/', (req, res) => {
-    // res.sendFile(`${__dirname}/docs/index.html`);
-    res.sendFile('./docs/index.html', {root: __dirname});
-});
+const url = 'mongodb://localhost:27017';
+const databaseName = 'studentsDB';
 
-app.get('/about', (req, res) => {
-    res.sendFile('./docs/about.html', { root: __dirname });
-});
+let db;
 
-app.get('/contact', (req, res) => {
-    res.status(200)
-    res.sendFile('./docs/contact.html', { root: __dirname });
-});
-app.get('/services', (req, res) => {
-    res.sendFile('./docs/services.html', { root: __dirname });
-});
+//* Function To Connect To Database : 
+const connectToMongoDb = async () => {
+    try {
+        const client = await MongoClient.connect(url);
+        db = client.db(databaseName);
+        console.log('Database Connected')
+    } catch (error) {
+        console.error('Failed To Connect to The Database', error);
+    }
+}
 
-app.use((req, res) => {
-    res.status(404).send('<h1> Page Not Found!!!</h1>')
+connectToMongoDb().then( () => {
+    const PORT = 5500;
+    app.listen(PORT, () => {
+        console.log(`Server is Running on Port ${PORT}`)
+    })
+}).catch(err => console.log(err));
+
+app.get('/all-students', async (req, res) => {
+    try {
+        const data = await db.collection('students').find().toArray();
+        res.json(data);
+        console.log('Hello')
+    } catch (error) {
+        console.log(error);
+    }
 })
 
-app.listen(PORT, () => {
-    console.log(`Server is Running on Port : ${PORT}`)
-})
+
+
+
